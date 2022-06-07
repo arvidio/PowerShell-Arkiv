@@ -1,6 +1,7 @@
 #Script under uppbyggnad för arkivering av information i databaser från Ciceron Classic (Ärende 5.7?) Databasen bör vara densamma för nyare versioner av Ciceron DoÄ.
 #Kontakt: arvid.eriksson@norrtalje.se
 #Skrivet för PowerShell 7.2
+#Se även Ciceron CSVfix för förarbeten.
 
 #För fält som kan innnehålla NULL för att vara på säkra sidan.
 <#if("NULL" -eq $data){
