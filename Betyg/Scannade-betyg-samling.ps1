@@ -1,6 +1,6 @@
 #Script inte menat för körning rakt av.
 
-#Största, men första samlingen av script jag skrev (så viss chans att det finns bad-practice exempel i överflöd)
+#första samlingen av script jag skrev (så viss chans att det finns bad-practice exempel i överflöd)
 # Från att byta namn på skannade betyg till att ta ut texten ur filnamnet till csv. Har försökt få allt skannat än så länge till konsekvent PERSONNUMMER_EFTERNAMN_FORNAMN.pdf, för att sedan 
 # Betygen ligger sedan sorterade i mappstruktur, där mapparna motsvarar klassen generellt (eller det som står på aktomslaget).
 # Generellt bara jobbat med betyg från en skola, men skolan har nog satts manuellt istället för att inkludera i filnamnet.
