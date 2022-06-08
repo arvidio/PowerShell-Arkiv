@@ -1,3 +1,5 @@
+##WIP för ECOS1. Nedan skapar ett eget element.
+
 
 $csvAr = Import-Csv 'C:\Users\97arer14\Documents\new 2.csv' -Encoding utf8NoBOM -Delimiter ";"
 
