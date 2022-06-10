@@ -21,7 +21,7 @@ $XMLInit = @"
 <Leveransobjekt xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://xml.ra.se/e-arkiv/FGS-ERMS" xsi:schemaLocation="http://xml.ra.se/e-arkiv/FGS-ERMS/arendehantering.xsd">
     <ArkivobjektListaArenden>
 "@
-$XMLInit | Out-File "C:\Users\97arer14\Documents\$filnamn" -Encoding utf8NoBOM
+$XMLInit | Out-File "C:\Users\97arer14\Documents\Arkivexport\$filnamn" -Encoding utf8NoBOM
 $XMLEnd = @"
 </ArkivobjektListaArenden>
 </Leveransobjekt>
@@ -382,6 +382,6 @@ $XMLStart = @"
         </ArkivobjektArende>
 "@
 
-$XMLStart | Out-File "C:\Users\97arer14\Documents\$filnamn" -Encoding utf8NoBOM -Append
+$XMLStart | Out-File "C:\Users\97arer14\Documents\Arkivexport\$filnamn" -Encoding utf8NoBOM -Append
 }
-$XMLEnd | Out-File "C:\Users\97arer14\Documents\$filnamn" -Encoding utf8NoBOM -Append
+$XMLEnd | Out-File "C:\Users\97arer14\Documents\Arkivexport\$filnamn" -Encoding utf8NoBOM -Append
