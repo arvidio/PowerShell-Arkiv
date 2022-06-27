@@ -3,13 +3,13 @@
 #Skrivet för PowerShell 7.2
 
 
-#Sökvägar till olika SQL-uttag (Konverterade till UTF8NoBOM, kan nog importera dem som BOM och trycka ut som NoBOM?)
-$CSVusr= Import-Csv C:\Users\97arer14\Documents\JVPAnvändare.csv -Delimiter ";" -Encoding utf8NoBOM
-$CSVare= Import-Csv C:\Users\97arer14\Documents\JVPCases3.csv -Delimiter ";" -Encoding utf8NoBOM
-$CSVhan= Import-CSV C:\Users\97arer14\Documents\JVPHandlingar2.csv -Delimiter ";" -Encoding utf8NoBOM
-$CSVenh= Import-CSV C:\Users\97arer14\Documents\JVPEnhet.csv -Delimiter ";" -encoding utf8NoBOM
-$CSVdia= Import-CSV C:\Users\97arer14\Documents\JVPDiarieplaner.csv -Delimiter ";" -encoding utf8NoBOM
-$CSVhty= Import-Csv C:\Users\97arer14\Documents\JVPhandlingstyper.csv -Delimiter ";" -Encoding utf8NoBOM
+#Sökvägar till olika SQL-uttag (Konverterade till UTF8NoBOM, kan nog importera dem som BOM och trycka ut som NoBOM? Provar med det nu, så funkar det inte längre är det därför!)
+$CSVusr= Import-Csv C:\Users\97arer14\Documents\TNDiariumAnvandare.csv -Delimiter ";" -Encoding utf8BOM
+$CSVare= Import-Csv C:\Users\97arer14\Documents\TNDiariumArenden.csv -Delimiter ";" -Encoding utf8BOM
+$CSVhan= Import-CSV C:\Users\97arer14\Documents\TNDiariumHandlingar2.csv -Delimiter ";" -Encoding utf8BOM
+$CSVenh= Import-CSV C:\Users\97arer14\Documents\TNDiariumEnhet.csv -Delimiter ";" -encoding utf8BOM
+$CSVdia= Import-CSV C:\Users\97arer14\Documents\TNDiariumDiarieplaner.csv -Delimiter ";" -encoding utf8BOM
+$CSVhty= Import-Csv C:\Users\97arer14\Documents\TNDiariumHandlingstyper.csv -Delimiter ";" -Encoding utf8BOM
 
 
 foreach($dpl in $CSVdia){
@@ -17,7 +17,7 @@ foreach($dpl in $CSVdia){
     $dpltext = $dpl.prim_text
     foreach($arende in $CSVare){
         $dplan = $arende.prim_nr
-        if($dplan -match $dplbeteckning){
+        if($dplan -eq $dplbeteckning){
             $arende.prim_nr = $dplan + " " + $dpltext
         }
     }
@@ -27,25 +27,46 @@ foreach($htyp in $CSVhty){
     $handtyptext = $htyp.atgard_typ_text
     foreach($handling in $CSVhan){
         $handlingstyp = $handling.atgard_typ
-        if($handlingstyp -match $handtypkod){
+        if($handlingstyp -eq $handtypkod){
             $handling.atgard_typ = $handling.atgard_typ.Replace($handtypkod,$handtyptext)
         }
     }
 }
 ### Testa detta
 foreach($arende in $CSVare){
-    $arende.mod_dat = $arende.mod_dat.SubString(0,10)
-    $arende.reg_dat = $arende.reg_dat.SubString(0,10)
-    $arende.ankomst_dat = $arende.ankomst_dat.Substring(0,10)
-    $arende.avslut_dat = $arende.avslut_dat.Substring(0,10)
-    #Fattar inte felmeddelandena men funkar?
+    if('NULL' -ne $arende.mod_dat){
+        $arende.mod_dat = $arende.mod_dat.SubString(0,10)
+    }
+    if('NULL' -ne $arende.reg_dat){
+        $arende.reg_dat = $arende.reg_dat.SubString(0,10)
+    }
+    if('NULL' -ne $arende.ankomst_dat){
+        $arende.ankomst_dat = $arende.ankomst_dat.Substring(0,10)
+    }
+    if('NULL' -ne $arende.avslut_dat){
+        $arende.avslut_dat = $arende.avslut_dat.Substring(0,10)
+    }
+    
+    
+    
+    
 }
 foreach($h in $CSVhan){
-    $h.mod_dat = $h.mod_dat.SubString(0,10)
-    $h.reg_dat = $h.reg_dat.SubString(0,10)
-    $h.ink_dat = $h.ink_dat.Substring(0,10)
-    $h.utg_dat = $h.utg_dat.Substring(0,10)
-    #Fattar inte felmeddelandena men funkar?
+    if('NULL' -ne $h.mod_dat){
+        $h.mod_dat = $h.mod_dat.SubString(0,10)
+    }
+    if('NULL' -ne $h.reg_dat){
+        $h.reg_dat = $h.reg_dat.SubString(0,10)
+    }
+    if('NULL' -ne $h.ink_dat){
+        $h.ink_dat = $h.ink_dat.Substring(0,10)
+    }    
+    if('NULL' -ne $h.utg_dat){
+        $h.utg_dat = $h.utg_dat.Substring(0,10)
+    }
+    
+    
+    
 }
 
 foreach($user in $CSVusr){

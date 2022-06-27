@@ -51,12 +51,12 @@ $metsfilexml=@"
 </mets:file>
 "@
 Copy-Item $afile.FullName -Destination C:\Users\97arer14\Documents\Script\leveranspaket\content\1
-$metsfilexml | Out-File C:\Users\97arer14\Documents\Script\metsfiles.xml -Encoding utf8 -Append
+$metsfilexml | Out-File C:\Users\97arer14\Documents\Script\metsfiles.xml -Encoding utf8NoBOM -Append
 }
 
 
 $metsfilesxmloutput=Get-ChildItem -Path C:\Users\97arer14\Documents\Script\metsfiles.xml
-$metsfiles = Get-Content $metsfilesxmloutput -Encoding UTF8 -Raw
+$metsfiles = Get-Content $metsfilesxmloutput -Encoding utf8NoBOM -Raw
 remove-item $metsfilesxmloutput
 
 #"komplett" XML-dokument
