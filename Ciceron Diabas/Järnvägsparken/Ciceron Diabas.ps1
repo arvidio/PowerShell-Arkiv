@@ -18,6 +18,7 @@ else{
 $CSVAr=Import-Csv "C:\Users\97arer14\Documents\CSVarefixed.csv" -Delimiter ";" -Encoding utf8NoBOM
 $CSVHa=Import-Csv "C:\users\97arer14\Documents\csvhanfixed.csv" -Delimiter ";" -Encoding utf8NoBOM
 $CSVdo=Import-Csv "C:\Users\97arer14\Documents\CESVE.csv" -Delimiter ";" -Encoding utf8BOM
+
 New-Item -Name "Arkivexport" -ItemType Directory -Path C:\Users\97arer14\Documents
 $Diarium = Read-Host -Prompt "Vad ska diariebeteckningen vara på diariet?"
 $Datum = Get-Date -Format yyyy-MM-ddTThhmm
@@ -165,6 +166,7 @@ foreach($arende in $csvar){
         </Motpart>
 "@
     }
+
     #inkommen/upprättad för ärende, kommer förmodligen se annorlunda ut i andra diarium, nu verkar det bara vara inkomstdatum som finns ifyllt
     $inkommena = $arende.ankomst_dat
     if("NULL" -ne $inkommena){
@@ -386,7 +388,7 @@ foreach($arende in $csvar){
             $HandlingsXML += $handlingInkommande
             $HandlingsXML += $handlingLopnummer
             $HandlingsXML += $Mottagare
-            #Återstår att läggas till
+            #Återstår att läggas till 
             $HandlingsXML += $NoteringHandling
             $HandlingsXML += $HandlingsRubrik #Onödigt ju, är samma som beskrivning
             $HandlingsXML += $SkapadHa

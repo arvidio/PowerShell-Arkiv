@@ -18,6 +18,8 @@ else{
 $CSVAr=Import-Csv "C:\Users\97arer14\Documents\CSVarefixed.csv" -Delimiter ";" -Encoding utf8NoBOM
 $CSVHa=Import-Csv "C:\users\97arer14\Documents\csvhanfixed.csv" -Delimiter ";" -Encoding utf8NoBOM
 $CSVdo=Import-Csv "C:\Users\97arer14\Documents\TNDiariumAssoc_data-lagr_data.csv" -Delimiter ";" -Encoding utf8BOM
+$CSVnot=Import-CSV "C:\Users\97arer14\Documents\anteck.csv" -Delimiter ";" -Encoding utf8NoBOM
+
 New-Item -Name "Arkivexport" -ItemType Directory -Path C:\Users\97arer14\Documents
 $Diarium = Read-Host -Prompt "Vad ska diariebeteckningen vara på diariet?"
 $Datum = Get-Date -Format yyyy-MM-ddTThhmm
@@ -181,6 +183,28 @@ foreach($arende in $csvar){
         </Motpart>
 "@
     }
+
+#Notering, anteckningar i Ciceron.
+foreach($anteckning in $CSVnot){
+    $anteckningdnr = $anteckning.diarienr
+    $anteckningtyp = $anteckning.anteck_typ
+    $anteckningtext = $anteckning.anteck_text
+
+    ##OBS Nedan behöver hårdkodas från TEN och TN beroende på diarium. Vet att det förekommer i KS också
+if(($anteckningtext -match "Diarienummer : \d\d/TEN\d\d\d")-or($anteckningtext -match "Diarienummer : \d\d/TN\d\d\d\d")){
+$ExtraIDAr += @"
+<ExtraID ExtraIDTyp="Diarienummer från anteckningar">$anteckningtext</ExtraID>
+"@
+}
+    if($diarienummera -eq $anteckningdnr){
+        $anteckningsobjekt += @"
+$anteckningtyp : $anteckningtext
+"@  
+    }
+}
+$NoteringArende = "<Notering>$anteckningsobjekt</Notering>"
+#Töm efter NoteringArende har värde...
+$anteckningsobjekt = $null
     #inkommen/upprättad för ärende, kommer förmodligen se annorlunda ut i andra diarium, nu verkar det bara vara inkomstdatum som finns ifyllt, Samma förTN. kanske inkommet till registraturen?
     $inkommena = $arende.ankomst_dat
     if("NULL" -ne $inkommena){
