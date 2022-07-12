@@ -15,10 +15,13 @@ else{
 }#>
 
 #Paths till CSV-filerna för handlingar och ärenden.
-$CSVAr=Import-Csv "C:\Users\97arer14\Documents\CSVarefixed.csv" -Delimiter ";" -Encoding utf8NoBOM
-$CSVHa=Import-Csv "C:\users\97arer14\Documents\csvhanfixed.csv" -Delimiter ";" -Encoding utf8NoBOM
-$CSVdo=Import-Csv "C:\Users\97arer14\Documents\TNDiariumAssoc_data-lagr_data.csv" -Delimiter ";" -Encoding utf8BOM
-New-Item -Name "Arkivexport" -ItemType Directory -Path C:\Users\97arer14\Documents
+$CSVAr=Import-Csv .\Documents\CSVarefixed.csv -Delimiter "¤" -Encoding utf8NoBOM
+$CSVHa=Import-Csv .\Documents\csvhanfixed.csv -Delimiter "¤" -Encoding utf8NoBOM
+$CSVdo=Import-Csv .\Documents\KSDiariumAssoc_data-lagr_data.csv -Delimiter "¤" -Encoding utf8NoBOM
+$CSVnot=Import-CSV .\Documents\anteck.csv -Delimiter "¤" -Encoding utf8NoBOM
+$CSVsam=Import-CSV .\Documents\KSDiariumSamband.csv -Delimiter "¤" -Encoding utf8NoBOM
+
+New-Item -Name "Arkivexport" -ItemType Directory -Path .\Documents
 $Diarium = Read-Host -Prompt "Vad ska diariebeteckningen vara på diariet?"
 $Datum = Get-Date -Format yyyy-MM-ddTThhmm
 $filnamn = $Diarium + $Datum + "Arkivexport.xml"
@@ -74,6 +77,20 @@ foreach($arende in $csvar){
     $BeskrivningAr = "<Beskrivning>$arendemen</Beskrivning>"
     $Arendemening = "<Arendemening>$arendemen</Arendemening>"
     }
+    #Gallras
+    if($arende.prim_nr -eq "513 Parkeringstillstånd"){
+        $GallringA = @"
+        <Gallring Gallras="true"/>
+"@
+    }
+    else{
+        $GallringA = @"
+        <Gallring Gallras="false"/>
+"@
+    }
+    
+
+
     #Registrator och handläggare # BEHÖVER LÖSA ENHET/ORGANISATION-PROBLEMET. Organisation nästan alltid Norrtälje kommun. Enhet behöver komma från DB. Enkel if-sats för möjliga enheter?ö
     #Tror att det är bäst att koda det separat. Alltså att ersätta CSV-filen som har koderna. 
     
@@ -143,6 +160,10 @@ foreach($arende in $csvar){
         $motpartkau = $arende.kund_gadr1
         $MotpartOrganisation = "<Organisation>$motpartkau</Organisation>"
     }
+    if(($null -eq $MotpartNamn)-and($null -ne $MotpartOrganisation)){
+        $MotpartNamn = "<Namn>-</Namn>"
+    }
+
     if("NULL" -eq $arende.kund_gadr2){
         $MotpartPostadress = $null
     }
@@ -181,6 +202,50 @@ foreach($arende in $csvar){
         </Motpart>
 "@
     }
+
+#Notering, anteckningar i Ciceron.
+foreach($anteckning in $CSVnot){
+    $anteckningdnr = $anteckning.diarienr
+    $anteckningtyp = $anteckning.anteck_typ
+    $anteckningtext = $anteckning.anteck_text
+
+    if($diarienummera -eq $anteckningdnr){
+        ##OBS Nedan behöver hårdkodas från TEN och TN beroende på diarium. Vet att det förekommer i KS också    
+        if(($anteckningtext -match "Diarienummer : \d\d\d\d\.\d\d\d\d")-or($anteckningtext -match "Diarienummer : \d\d/KS\d\d\d\d")){
+            $ExtraIDAr += @"
+    <ExtraID ExtraIDTyp="Från anteckningar">$anteckningtext</ExtraID>
+"@
+            }
+        
+    $anteckningsobjekt += @"
+$anteckningtyp : $anteckningtext 
+"@  
+    }
+}
+$NoteringArende = "<Notering>$anteckningsobjekt</Notering>"
+#Töm efter NoteringArende har värde...
+$anteckningsobjekt = $null
+
+##Ärenderelation
+#OBS !!! !!! $ArendeRelation måste sättas till $null efter att ärendeXML är färdigt nedan.
+foreach($sam in $csvsam){
+    if($sam.diarienr -eq $arende.diarienr){
+        $relationo = $sam.diarienr_samband
+        #
+        $relAr = $relationo.SubString(0,4)
+        $relDnr = $relationo.SubString(4,6)
+        $relnrsub = [int]$relDnr
+        $relnrstr = [string]$relnrsub
+        $trimmadochklarrelation = $relAr + "-" + $relnrstr
+        $relation = $Diarium + " " + $trimmadochklarrelation
+        #
+        $ArendeRelation += @"
+        <ArendeRelation Typ="Referens">$relation</ArendeRelation>
+"@
+    }
+}
+
+
     #inkommen/upprättad för ärende, kommer förmodligen se annorlunda ut i andra diarium, nu verkar det bara vara inkomstdatum som finns ifyllt, Samma förTN. kanske inkommet till registraturen?
     $inkommena = $arende.ankomst_dat
     if("NULL" -ne $inkommena){
@@ -226,7 +291,13 @@ foreach($arende in $csvar){
                             else{
                                 $filext = $fil.Extension
                                 $nypath = "C:\Users\97arer14\Documents\Arkivexport\$diarienummerh"+"_$handlingsnummer"+"_"+"$n"+"$filext"
+                                $testpath = Test-Path $nypath
                                 $n++
+                                # Borde fixa den som har flera filer kopplade till en handling i flera olika FAMID. Måste testas
+                                if($testpath -eq $true){
+                                    $n = Read-Host -Prompt "Skriv en siffra (gärna 2,3,4,5, i ordning)"
+                                    $nypath = "C:\Users\97arer14\Documents\Arkivexport\$diarienummerh"+"_$handlingsnummer"+"_"+"$n"+"$filext"
+                                }
                                 Copy-Item $fil -Destination $nypath
                                 $nyfil = Get-ChildItem $nypath
                                 #Bevarar gamla filnamnet i ett attribut
@@ -298,9 +369,9 @@ foreach($arende in $csvar){
             }
             
             #check då <Namn> är required men inte <Organisation>... Man har inte velat skriva ut personnamn i namnfältet.
-            if(($null -eq $MotpartNamn)-and($null -ne $MotpartOrganisation)){
-                $MotpartNamn = "<Namn>$motpartkau</Namn>"
-                $MotpartOrganisation = $null
+            if(("NULL" -eq $MotpartName)-and("NULL" -ne $motpartkau)){
+                $MotpartNamn = "<Namn>-</Namn>"
+                
             }
 
             if("NULL" -eq $handling.kund_gadr2){
@@ -324,7 +395,7 @@ foreach($arende in $csvar){
                 $motpartpostor = $handling.kund_padr
                 $MotpartPostort = "<Postort>$motpartpostor</Postort>"
             }
-            ############## Lägg till
+            ############## Lägg till EXP
             #### skriv eventuellt in avsändaretaggen för inkommande och mottagaretagge för expedierade. Men blir lite grötigt...
             if($handling.ink_utg -eq "I"){
                 $handlinginkdat = $handling.ink_dat
@@ -341,6 +412,9 @@ foreach($arende in $csvar){
                     $Avsandare = $null
                 }
                 else{
+                    if(($null -eq $MotpartNamn)-and($null -ne $MotpartOrganisation)){
+                        $MotpartNamn = "<Namn>-</Namn>"
+                    }
                     $Avsandare = @"
                     <Avsandare>
                         $MotpartNamn
@@ -354,7 +428,8 @@ foreach($arende in $csvar){
             }
             #Varning här att det finns en UPPR i riktining enligt databasen, bara inte använd. UPPR bör om det förekommer användas för att skapa Upprättad taggen och sätta status
             #I nuläget är det en fuling som säger att om handlingen har status U (utgående) men inte har en mottagare är den upprättad. Datum för upprättandet blir...? Förekommer ju inte...
-            elseif($handling.ink_utg -eq "U"){
+            #Kan man använda OR EXP här för att fånga de som har EXP. Reglerna gäller ju fortfarande. Om utgångsdatum finns lägg på Expedierad... Vi kör på den!
+            elseif(($handling.ink_utg -eq "U")-or($handling.ink_utg -eq "EXP")){
                 $handlingutgdat = $handling.utg_dat
                 if('NULL' -eq $handlingutgdat){
                     $handlingUtgaende = $null
@@ -365,7 +440,7 @@ foreach($arende in $csvar){
                 $handlingInkommande = $null
                 $Avsandare = $null
                 $StatusHandling = "<StatusHandling>Expedierad</StatusHandling>"
-                if($motpartname -eq "NULL"){ #-and($motpartkau -eq "NULL") Urklippt då det inte verkar tillåtet att ha bara organisation på mottagare. Sadface
+                if(($handling.kund_namn -eq "NULL")-and($handling.kund_gadr1 -eq "NULL")){ 
                     $Mottagare = $null
                     $StatusHandling = "<StatusHandling>Upprättad</StatusHandling>"
                     
@@ -373,6 +448,9 @@ foreach($arende in $csvar){
                     $handlingUtgaende = $null
                 }
                 else{
+                    if(($null -eq $MotpartNamn)-and($null -ne $MotpartOrganisation)){
+                        $MotpartNamn = "<Namn>-</Namn>"
+                    }
                     $Mottagare = @"
                     <Mottagare>
                         $MotpartNamn
@@ -382,8 +460,10 @@ foreach($arende in $csvar){
                         $MotpartPostort
                     </Mottagare>
 "@
+                    
                 }
             }
+            #Borde vara Elseif och ha EXP för då är handlingen utgående. Snarare än hopkoket ovan.
             else{
                 $handlingInkommande = $null
                 $handlingUtgaende = $null
@@ -405,7 +485,19 @@ foreach($arende in $csvar){
             #eventuellt onödigt, men gör det en gnutta mer sökbart.
             $HandlingsRubrik = "<Rubrik>$BeskrivningHa</Rubrik>"
             }
-            
+            #Gallras
+            if($arende.prim_nr -eq "513 Parkeringstillstånd"){
+                $GallringH = @"
+    <Gallring Gallras="true"/>
+"@
+            }
+            else{
+                $GallringH = @"
+    <Gallring Gallras="false"/>
+"@
+            }
+
+
             $haregdat = $handling.reg_dat
             $SkapadHa = "<Skapad>$haregdat</Skapad>"
             $mod_dath = $handling.mod_dat
@@ -420,6 +512,7 @@ foreach($arende in $csvar){
             }
             
             $HandlingsXML += @"
+
 <ArkivobjektHandling Systemidentifierare="UUID:$handlingsGUID">
 "@
             $HandlingsXML += "<ArkivobjektID>$handlingsarkivobjektID</ArkivobjektID>"
@@ -430,9 +523,7 @@ foreach($arende in $csvar){
             $HandlingsXML += $Avsandare
             $HandlingsXML += $HandlingsBeskrivning
             $HandlingsXML += $handlingUtgaende
-            $HandlingsXML += @"
-<Gallring Gallras="false"/>
-"@
+            $HandlingsXML += $GallringH
             $HandlingsXML += $AgentHandlingHandlaggare
             $HandlingsXML += $AgentHandlingRegistrator
             $HandlingsXML += $handlingInkommande
@@ -449,7 +540,9 @@ foreach($arende in $csvar){
             $HandlingsXML += $RestriktionHa
             $HandlingsXML += $Bilagor
             $HandlingsXML += "</ArkivobjektHandling>"
-        }     
+            
+        }
+            
     }
 ##Borde gå att lägga ihop $HandlingsXML och $HandlingsXMLAvslut och om de är det enda sätt båda till null
 $Handlingslista = $HandlingsXML + $HandlingsXMLAvslut    
@@ -459,6 +552,7 @@ if($Handlingslista -eq "<ArkivobjektListaHandlingar></ArkivobjektListaHandlingar
 }
 
 #Finns bara avslutade ärenden (hoppas jag)
+
 $XMLStart = @"
 
         $ArkivobjektArende
@@ -467,13 +561,14 @@ $XMLStart = @"
             $Arkiverat
             $Avslutat
             $BeskrivningAr
-            <Gallring Gallras="false"/>
+            $GallringA
             $AgentArendeHandlaggare
             $AgentArendeRegistrator
             $Klass
             $RestriktionAr
             $Motpart
             $NoteringArende
+            $ArendeRelation
             $SistaAnvandandetidpunktAr
             $SkapadAr
             $InkommenArende
@@ -485,10 +580,10 @@ $XMLStart = @"
                 $HandlingsXMLavslut
         </ArkivobjektArende>
 "@
-
-$XMLStart | Out-File "C:\Users\97arer14\Documents\Arkivexport\$filnamn" -Encoding utf8NoBOM -Append
+$ArendeRelation = $null
+$XMLStart | Out-File ".\Documents\Arkivexport\$filnamn" -Encoding utf8NoBOM -Append
 }
-$XMLEnd | Out-File "C:\Users\97arer14\Documents\Arkivexport\$filnamn" -Encoding utf8NoBOM -Append
+$XMLEnd | Out-File ".\Documents\Arkivexport\$filnamn" -Encoding utf8NoBOM -Append
 
 ### Skapa ett arkivpaket
 Read-Host -Prompt "Validera XML-dokumentet. Replace & med &amp; i notepad++. Sök först efter &amp; för att inte lägga dubbla"
@@ -496,12 +591,12 @@ Read-Host -Prompt "Validera XML-dokumentet. Replace & med &amp; i notepad++. Sö
 $LevFiler = Get-ChildItem -Path C:\Users\97arer14\Documents\Arkivexport -Exclude *.xml
 $LevXMLfiler = Get-ChildItem -Path C:\users\97arer14\documents\Arkivexport\*.xml
 $XSDfil = Get-ChildItem -Path C:\Users\97arer14\Documents\Script\KEEP\arendehantering.xsd
-New-Item -Name "Paket" -ItemType Directory -Path "C:\Users\97arer14\Documents\Arkivexport\"
-New-Item -Name "Leveranspaket" -ItemType Directory -Path "C:\Users\97arer14\Documents\Arkivexport\Paket\"
-New-Item -Name "Content" -ItemType Directory -Path "C:\Users\97arer14\Documents\Arkivexport\Paket\Leveranspaket\"
-New-Item -Name "1" -ItemType Directory -Path "C:\Users\97arer14\Documents\Arkivexport\Paket\Leveranspaket\Content\"
-New-Item -Name "2" -ItemType Directory -Path "C:\Users\97arer14\Documents\Arkivexport\Paket\Leveranspaket\Content\"
-New-Item -Name "System" -ItemType Directory -Path "C:\Users\97arer14\Documents\Arkivexport\Paket\Leveranspaket\"
+New-Item -Name "Paket" -ItemType Directory -Path .\Documents\Arkivexport\
+New-Item -Name "Leveranspaket" -ItemType Directory -Path .\Documents\Arkivexport\Paket\
+New-Item -Name "Content" -ItemType Directory -Path .\Documents\Arkivexport\Paket\Leveranspaket\
+New-Item -Name "1" -ItemType Directory -Path .\Documents\Arkivexport\Paket\Leveranspaket\Content\
+New-Item -Name "2" -ItemType Directory -Path .\Documents\Arkivexport\Paket\Leveranspaket\Content\
+New-Item -Name "System" -ItemType Directory -Path .\Documents\Arkivexport\Paket\Leveranspaket\
 
 $OBJIDGUIDObject=New-Guid
 $OBJIDGUID=$OBJIDGUIDObject.Guid
@@ -528,6 +623,12 @@ foreach($afile in $LevFiler){
     elseif($afile.Extension -eq ".doc"){
         $MIMEType = "application/msword"
     }
+    elseif($afile.Extension -eq ".txt"){
+        $MIMEType = "text/plain"
+    }
+    elseif($afile.Extension -eq ".eml"){
+        $MIMEType = "application/octet-stream"
+    }
     else{
         $MIMEType = $null
         $afile.Extension
@@ -539,8 +640,8 @@ foreach($afile in $LevFiler){
     </mets:file>
 "@
 
-Copy-Item $afile.FullName -Destination C:\Users\97arer14\Documents\Arkivexport\Paket\Leveranspaket\Content\1
-$metsfilexml | Out-File C:\Users\97arer14\Documents\Script\metsfiles.xml -Encoding utf8NoBOM -Append
+Copy-Item $afile.FullName -Destination .\Documents\Arkivexport\Paket\Leveranspaket\Content\1
+$metsfilexml | Out-File .\Documents\Script\metsfiles.xml -Encoding utf8NoBOM -Append
 }
 foreach($xfile in $LevXMLFiler){
     #Variabler relaterat till filer
@@ -559,8 +660,8 @@ foreach($xfile in $LevXMLFiler){
         <mets:FLocat LOCTYPE="URL" xlink:type="simple" xlink:href="file:///Content/2/$filename"/>
     </mets:file>
 "@
-Copy-Item $xfile.FullName -Destination C:\Users\97arer14\Documents\Arkivexport\Paket\Leveranspaket\Content\2
-$metsfilexml | Out-File C:\Users\97arer14\Documents\Script\metsfiles.xml -Encoding utf8NoBOM -Append
+Copy-Item $xfile.FullName -Destination .\Documents\Arkivexport\Paket\Leveranspaket\Content\2
+$metsfilexml | Out-File .\Documents\Script\metsfiles.xml -Encoding utf8NoBOM -Append
 }
 foreach($xsdfile in $XSDfil){
     #Variabler relaterat till filer
@@ -580,13 +681,13 @@ foreach($xsdfile in $XSDfil){
     </mets:file>
 "@
 
-Copy-Item $xsdfile.FullName -Destination C:\Users\97arer14\Documents\Arkivexport\Paket\Leveranspaket\System
-$metsfilexml | Out-File C:\Users\97arer14\Documents\Script\metsfiles.xml -Encoding utf8NoBOM -Append
+Copy-Item $xsdfile.FullName -Destination .\Documents\Arkivexport\Paket\Leveranspaket\System
+$metsfilexml | Out-File .\Documents\Script\metsfiles.xml -Encoding utf8NoBOM -Append
 }
 
 
 
-$metsfilesxmloutput=Get-ChildItem -Path C:\Users\97arer14\Documents\Script\metsfiles.xml
+$metsfilesxmloutput=Get-ChildItem -Path .\Documents\Script\metsfiles.xml
 $metsfiles = Get-Content $metsfilesxmloutput -Encoding utf8NoBOM -Raw
 remove-item $metsfilesxmloutput
 
@@ -597,13 +698,13 @@ $XMLSIPdokument=@"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns:ext="ExtensionMETS"
            OBJID="GUID:$OBJIDGUID"
-           LABEL="Diarieförda ärenden Tekniska nämnden, ur Ciceron Diabas"
+           LABEL="Diarieförda ärenden Kommunstyrelsen, ur Ciceron Diabas"
            TYPE="ERMS"
            PROFILE="http://xml.ra.se/e-arkiv/METS/CommonSpecificationSwedenPackageProfile.xml"
            ext:ACCESSRESTRICT="Secrecy and PuL"
            ext:AGREEMENTFORM="AGREEMENT"
            ext:APPRAISAL="No"
-           ext:ARCHIVALNAME="TEKNISKA NÄMNDEN"
+           ext:ARCHIVALNAME="KOMMUNSTYRELSEN"
            ext:PACKAGENUMBER="1"
            ext:SYSTEMTYPE="Ärendehanteringssystem">
   <mets:metsHdr CREATEDATE="$DateTimeExtended"
@@ -611,7 +712,7 @@ $XMLSIPdokument=@"
                 ext:OAISSTATUS="SIP">
     <mets:agent ROLE="CREATOR"
                 TYPE="INDIVIDUAL">
-      <mets:name>Tekniska nämnden</mets:name>
+      <mets:name>Kommunstyrelsen</mets:name>
     </mets:agent>
     <mets:agent ROLE="CREATOR"
                 TYPE="ORGANIZATION">
@@ -623,8 +724,8 @@ $XMLSIPdokument=@"
     </mets:agent>
     <mets:agent ROLE="ARCHIVIST"
                 TYPE="ORGANIZATION">
-      <mets:name>TEKNISKA NÄMNDEN</mets:name>
-      <mets:note>Local:10017</mets:note>
+      <mets:name>KOMMUNSTYRELSEN</mets:name>
+      <mets:note>Local:10002</mets:note>
     </mets:agent>
     <mets:agent ROLE="PRESERVATION"
                 TYPE="ORGANIZATION">
@@ -670,7 +771,7 @@ $metsfiles
 </mets:mets>
 "@
 
-$XMLSIPdokument | Out-File C:\users\97arer14\Documents\Arkivexport\Paket\Leveranspaket\sip.xml -Encoding utf8
+$XMLSIPdokument | Out-File .\Documents\Arkivexport\Paket\Leveranspaket\sip.xml -Encoding utf8
 
-Compress-Archive -Path C:\Users\97arer14\Documents\Arkivexport\Paket\Leveranspaket\* -DestinationPath "C:\users\97arer14\Documents\Script\TNDiabas$DateYYYYMMDD" -CompressionLevel Optimal -Force
-Remove-Item -Path C:\Users\97arer14\Documents\Arkivexport\ -Recurse
+Compress-Archive -Path .\Documents\Arkivexport\Paket\Leveranspaket\* -DestinationPath ".\Documents\Script\KSDiabas$DateYYYYMMDD" -CompressionLevel Optimal -Force
+Remove-Item -Path .\Documents\Arkivexport\ -Recurse

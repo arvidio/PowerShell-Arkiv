@@ -75,10 +75,10 @@ foreach($user in $CSVusr){
     foreach($arende in $CSVare){
         $handlaggare = $arende.usrsign_handl
         $registrator = $arende.usrsign_reg
-        if($handlaggare -match $usrsign){
+        if($handlaggare -eq $usrsign){
             $arende.usrsign_handl = ($arende.usrsign_handl).Replace($usrsign,$usrnamn)
         }
-        if($registrator -match $usrsign){
+        if($registrator -eq $usrsign){
             $arende.usrsign_reg = ($arende.usrsign_reg).Replace($usrsign,$usrnamn)
         }
 
@@ -91,10 +91,10 @@ foreach($user in $CSVusr){
     foreach($handling in $CSVhan){
         $handlaggare = $handling.usrsign_handl
         $registrator = $handling.usrsign_reg
-        if($handlaggare -match $usrsign){
+        if($handlaggare -eq $usrsign){
             $handling.usrsign_handl = ($handling.usrsign_handl).Replace($usrsign,$usrnamn)
         }
-        if($registrator -match $usrsign){
+        if($registrator -eq $usrsign){
             $handling.usrsign_reg = ($handling.usrsign_reg).Replace($usrsign,$usrnamn)
         }
 
@@ -106,13 +106,13 @@ foreach($enhet in $CSVenh){
     $enhetnamn = $enhet.enhet_namn
     foreach($arende in $CSVare){
         $enhetskod = $arende.enhet_kod
-        if($enhetskod -match $enhetkod){
+        if($enhetskod -eq $enhetkod){
             $arende.enhet_kod = ($arende.enhet_kod).Replace($enhetkod,$enhetnamn)
         }
     }
     foreach($handling in $CSVhan){
         $enhetskod = $handling.enhet_kod
-        if($enhetskod -match $enhetkod){
+        if($enhetskod -eq $enhetkod){
             $handling.enhet_kod = ($handling.enhet_kod).Replace($enhetkod,$enhetnamn)
         }
     }

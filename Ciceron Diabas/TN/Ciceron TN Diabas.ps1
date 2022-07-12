@@ -76,6 +76,20 @@ foreach($arende in $csvar){
     $BeskrivningAr = "<Beskrivning>$arendemen</Beskrivning>"
     $Arendemening = "<Arendemening>$arendemen</Arendemening>"
     }
+    #Gallras
+    if($arende.prim_nr -eq "513 Parkeringstillstånd"){
+        $GallringA = @"
+        <Gallring Gallras="true"/>
+"@
+    }
+    else{
+        $GallringA = @"
+        <Gallring Gallras="false"/>
+"@
+    }
+    
+
+
     #Registrator och handläggare # BEHÖVER LÖSA ENHET/ORGANISATION-PROBLEMET. Organisation nästan alltid Norrtälje kommun. Enhet behöver komma från DB. Enkel if-sats för möjliga enheter?ö
     #Tror att det är bäst att koda det separat. Alltså att ersätta CSV-filen som har koderna. 
     
@@ -145,6 +159,10 @@ foreach($arende in $csvar){
         $motpartkau = $arende.kund_gadr1
         $MotpartOrganisation = "<Organisation>$motpartkau</Organisation>"
     }
+    if(($null -eq $MotpartNamn)-and($null -ne $MotpartOrganisation)){
+        $MotpartNamn = "<Namn>-</Namn>"
+    }
+
     if("NULL" -eq $arende.kund_gadr2){
         $MotpartPostadress = $null
     }
@@ -190,21 +208,23 @@ foreach($anteckning in $CSVnot){
     $anteckningtyp = $anteckning.anteck_typ
     $anteckningtext = $anteckning.anteck_text
 
-    ##OBS Nedan behöver hårdkodas från TEN och TN beroende på diarium. Vet att det förekommer i KS också
-if(($anteckningtext -match "Diarienummer : \d\d/TEN\d\d\d")-or($anteckningtext -match "Diarienummer : \d\d/TN\d\d\d\d")){
-$ExtraIDAr += @"
-<ExtraID ExtraIDTyp="Diarienummer från anteckningar">$anteckningtext</ExtraID>
-"@
-}
     if($diarienummera -eq $anteckningdnr){
-        $anteckningsobjekt += @"
-$anteckningtyp : $anteckningtext
+        ##OBS Nedan behöver hårdkodas från TEN och TN beroende på diarium. Vet att det förekommer i KS också    
+        if(($anteckningtext -match "Diarienummer : \d\d/TEN\d\d\d")-or($anteckningtext -match "Diarienummer : \d\d/TN\d\d\d\d")){
+            $ExtraIDAr += @"
+    <ExtraID ExtraIDTyp="Från anteckningar">$anteckningtext</ExtraID>
+"@
+            }
+        
+    $anteckningsobjekt += @"
+$anteckningtyp : $anteckningtext 
 "@  
     }
 }
 $NoteringArende = "<Notering>$anteckningsobjekt</Notering>"
 #Töm efter NoteringArende har värde...
 $anteckningsobjekt = $null
+
     #inkommen/upprättad för ärende, kommer förmodligen se annorlunda ut i andra diarium, nu verkar det bara vara inkomstdatum som finns ifyllt, Samma förTN. kanske inkommet till registraturen?
     $inkommena = $arende.ankomst_dat
     if("NULL" -ne $inkommena){
@@ -322,9 +342,9 @@ $anteckningsobjekt = $null
             }
             
             #check då <Namn> är required men inte <Organisation>... Man har inte velat skriva ut personnamn i namnfältet.
-            if(($null -eq $MotpartNamn)-and($null -ne $MotpartOrganisation)){
-                $MotpartNamn = "<Namn>$motpartkau</Namn>"
-                $MotpartOrganisation = $null
+            if(("NULL" -eq $MotpartName)-and("NULL" -ne $motpartkau)){
+                $MotpartNamn = "<Namn>-</Namn>"
+                
             }
 
             if("NULL" -eq $handling.kund_gadr2){
@@ -348,7 +368,7 @@ $anteckningsobjekt = $null
                 $motpartpostor = $handling.kund_padr
                 $MotpartPostort = "<Postort>$motpartpostor</Postort>"
             }
-            ############## Lägg till
+            ############## Lägg till EXP
             #### skriv eventuellt in avsändaretaggen för inkommande och mottagaretagge för expedierade. Men blir lite grötigt...
             if($handling.ink_utg -eq "I"){
                 $handlinginkdat = $handling.ink_dat
@@ -365,6 +385,9 @@ $anteckningsobjekt = $null
                     $Avsandare = $null
                 }
                 else{
+                    if(($null -eq $MotpartNamn)-and($null -ne $MotpartOrganisation)){
+                        $MotpartNamn = "<Namn>-</Namn>"
+                    }
                     $Avsandare = @"
                     <Avsandare>
                         $MotpartNamn
@@ -378,7 +401,8 @@ $anteckningsobjekt = $null
             }
             #Varning här att det finns en UPPR i riktining enligt databasen, bara inte använd. UPPR bör om det förekommer användas för att skapa Upprättad taggen och sätta status
             #I nuläget är det en fuling som säger att om handlingen har status U (utgående) men inte har en mottagare är den upprättad. Datum för upprättandet blir...? Förekommer ju inte...
-            elseif($handling.ink_utg -eq "U"){
+            #Kan man använda OR EXP här för att fånga de som har EXP. Reglerna gäller ju fortfarande. Om utgångsdatum finns lägg på Expedierad... Vi kör på den!
+            elseif(($handling.ink_utg -eq "U")-or($handling.ink_utg -eq "EXP")){
                 $handlingutgdat = $handling.utg_dat
                 if('NULL' -eq $handlingutgdat){
                     $handlingUtgaende = $null
@@ -389,7 +413,7 @@ $anteckningsobjekt = $null
                 $handlingInkommande = $null
                 $Avsandare = $null
                 $StatusHandling = "<StatusHandling>Expedierad</StatusHandling>"
-                if($motpartname -eq "NULL"){ #-and($motpartkau -eq "NULL") Urklippt då det inte verkar tillåtet att ha bara organisation på mottagare. Sadface
+                if(($handling.kund_namn -eq "NULL")-and($handling.kund_gadr1 -eq "NULL")){ 
                     $Mottagare = $null
                     $StatusHandling = "<StatusHandling>Upprättad</StatusHandling>"
                     
@@ -397,6 +421,9 @@ $anteckningsobjekt = $null
                     $handlingUtgaende = $null
                 }
                 else{
+                    if(($null -eq $MotpartNamn)-and($null -ne $MotpartOrganisation)){
+                        $MotpartNamn = "<Namn>-</Namn>"
+                    }
                     $Mottagare = @"
                     <Mottagare>
                         $MotpartNamn
@@ -406,8 +433,10 @@ $anteckningsobjekt = $null
                         $MotpartPostort
                     </Mottagare>
 "@
+                    
                 }
             }
+            #Borde vara Elseif och ha EXP för då är handlingen utgående. Snarare än hopkoket ovan.
             else{
                 $handlingInkommande = $null
                 $handlingUtgaende = $null
@@ -429,7 +458,19 @@ $anteckningsobjekt = $null
             #eventuellt onödigt, men gör det en gnutta mer sökbart.
             $HandlingsRubrik = "<Rubrik>$BeskrivningHa</Rubrik>"
             }
-            
+            #Gallras
+            if($arende.prim_nr -eq "513 Parkeringstillstånd"){
+                $GallringH = @"
+    <Gallring Gallras="true"/>
+"@
+            }
+            else{
+                $GallringH = @"
+    <Gallring Gallras="false"/>
+"@
+            }
+
+
             $haregdat = $handling.reg_dat
             $SkapadHa = "<Skapad>$haregdat</Skapad>"
             $mod_dath = $handling.mod_dat
@@ -444,6 +485,7 @@ $anteckningsobjekt = $null
             }
             
             $HandlingsXML += @"
+
 <ArkivobjektHandling Systemidentifierare="UUID:$handlingsGUID">
 "@
             $HandlingsXML += "<ArkivobjektID>$handlingsarkivobjektID</ArkivobjektID>"
@@ -454,9 +496,7 @@ $anteckningsobjekt = $null
             $HandlingsXML += $Avsandare
             $HandlingsXML += $HandlingsBeskrivning
             $HandlingsXML += $handlingUtgaende
-            $HandlingsXML += @"
-<Gallring Gallras="false"/>
-"@
+            $HandlingsXML += $GallringH
             $HandlingsXML += $AgentHandlingHandlaggare
             $HandlingsXML += $AgentHandlingRegistrator
             $HandlingsXML += $handlingInkommande
@@ -473,7 +513,9 @@ $anteckningsobjekt = $null
             $HandlingsXML += $RestriktionHa
             $HandlingsXML += $Bilagor
             $HandlingsXML += "</ArkivobjektHandling>"
-        }     
+            
+        }
+            
     }
 ##Borde gå att lägga ihop $HandlingsXML och $HandlingsXMLAvslut och om de är det enda sätt båda till null
 $Handlingslista = $HandlingsXML + $HandlingsXMLAvslut    
@@ -483,6 +525,7 @@ if($Handlingslista -eq "<ArkivobjektListaHandlingar></ArkivobjektListaHandlingar
 }
 
 #Finns bara avslutade ärenden (hoppas jag)
+
 $XMLStart = @"
 
         $ArkivobjektArende
@@ -491,7 +534,7 @@ $XMLStart = @"
             $Arkiverat
             $Avslutat
             $BeskrivningAr
-            <Gallring Gallras="false"/>
+            $GallringA
             $AgentArendeHandlaggare
             $AgentArendeRegistrator
             $Klass

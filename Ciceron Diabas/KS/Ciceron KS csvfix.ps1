@@ -3,14 +3,15 @@
 #Skrivet för PowerShell 7.2
 
 
-#Sökvägar till olika SQL-uttag (Konverterade till UTF8NoBOM, kan nog importera dem som BOM och trycka ut som NoBOM? Provar med det nu, så funkar det inte längre är det därför!)
-$CSVusr= Import-Csv C:\Users\97arer14\Documents\TNDiariumAnvandare.csv -Delimiter ";" -Encoding utf8BOM
-$CSVare= Import-Csv C:\Users\97arer14\Documents\TNDiariumArenden.csv -Delimiter ";" -Encoding utf8BOM
-$CSVhan= Import-CSV C:\Users\97arer14\Documents\TNDiariumHandlingar2.csv -Delimiter ";" -Encoding utf8BOM
-$CSVenh= Import-CSV C:\Users\97arer14\Documents\TNDiariumEnhet.csv -Delimiter ";" -encoding utf8BOM
-$CSVdia= Import-CSV C:\Users\97arer14\Documents\TNDiariumDiarieplaner.csv -Delimiter ";" -encoding utf8BOM
-$CSVhty= Import-Csv C:\Users\97arer14\Documents\TNDiariumHandlingstyper.csv -Delimiter ";" -Encoding utf8BOM
+#Sökvägar till olika SQL-uttag
+$CSVusr= Import-Csv .\Documents\KSDiariumAnvandare.csv -Delimiter "¤" -Encoding utf8NoBOM
+$CSVare= Import-Csv .\Documents\KSDiariumArenden.csv -Delimiter "¤" -Encoding utf8NoBOM
+$CSVhan= Import-CSV .\Documents\KSDiariumHandlingar.csv -Delimiter "¤" -Encoding utf8NoBOM
+$CSVenh= Import-CSV .\Documents\KSDiariumEnhet.csv -Delimiter "¤" -encoding utf8NoBOM
+$CSVdia= Import-CSV .\Documents\KSDiariumDiarieplaner.csv -Delimiter "¤" -encoding utf8NoBOM
+$CSVhty= Import-Csv .\Documents\KSDiariumHandlingstyper.csv -Delimiter "¤" -Encoding utf8NoBOM
 
+Read-Host -Prompt "Kontrollera Linebreaks först, annars kommer den lägga på en massa ¤"
 
 foreach($dpl in $CSVdia){
     $dplbeteckning = $dpl.prim_nr
@@ -75,10 +76,10 @@ foreach($user in $CSVusr){
     foreach($arende in $CSVare){
         $handlaggare = $arende.usrsign_handl
         $registrator = $arende.usrsign_reg
-        if($handlaggare -match $usrsign){
+        if($handlaggare -eq $usrsign){
             $arende.usrsign_handl = ($arende.usrsign_handl).Replace($usrsign,$usrnamn)
         }
-        if($registrator -match $usrsign){
+        if($registrator -eq $usrsign){
             $arende.usrsign_reg = ($arende.usrsign_reg).Replace($usrsign,$usrnamn)
         }
 
@@ -91,10 +92,10 @@ foreach($user in $CSVusr){
     foreach($handling in $CSVhan){
         $handlaggare = $handling.usrsign_handl
         $registrator = $handling.usrsign_reg
-        if($handlaggare -match $usrsign){
+        if($handlaggare -eq $usrsign){
             $handling.usrsign_handl = ($handling.usrsign_handl).Replace($usrsign,$usrnamn)
         }
-        if($registrator -match $usrsign){
+        if($registrator -eq $usrsign){
             $handling.usrsign_reg = ($handling.usrsign_reg).Replace($usrsign,$usrnamn)
         }
 
@@ -106,13 +107,13 @@ foreach($enhet in $CSVenh){
     $enhetnamn = $enhet.enhet_namn
     foreach($arende in $CSVare){
         $enhetskod = $arende.enhet_kod
-        if($enhetskod -match $enhetkod){
+        if($enhetskod -eq $enhetkod){
             $arende.enhet_kod = ($arende.enhet_kod).Replace($enhetkod,$enhetnamn)
         }
     }
     foreach($handling in $CSVhan){
         $enhetskod = $handling.enhet_kod
-        if($enhetskod -match $enhetkod){
+        if($enhetskod -eq $enhetkod){
             $handling.enhet_kod = ($handling.enhet_kod).Replace($enhetkod,$enhetnamn)
         }
     }
@@ -120,5 +121,5 @@ foreach($enhet in $CSVenh){
 
 
 
-$Csvare | Export-Csv -Path C:\users\97arer14\Documents\CSVarefixed.csv -encoding utf8NoBOM -Delimiter ";" -UseQuotes Never
-$csvhan | Export-CSV -Path C:\users\97arer14\Documents\CSVhanfixed.csv -encoding utf8NoBOM -Delimiter ";" -UseQuotes Never
+$Csvare | Export-Csv -Path .\Documents\CSVarefixed.csv -encoding utf8NoBOM -Delimiter "¤" -UseQuotes Never
+$csvhan | Export-CSV -Path .\Documents\CSVhanfixed.csv -encoding utf8NoBOM -Delimiter "¤" -UseQuotes Never
