@@ -1,2 +1,2 @@
-$x = [XML](Get-Content .\Documents\Arkivexport\BSN2022-07-14TT1135Arkivexport.xml)
+$x = [XML](Get-Content .\Documents\Arkivexport\BUN2022-07-14TT1328Arkivexport.xml)
 $x.Save(".\Documents\Prettyprint.xml")
