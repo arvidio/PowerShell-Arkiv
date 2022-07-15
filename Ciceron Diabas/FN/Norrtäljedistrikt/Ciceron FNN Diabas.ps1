@@ -17,9 +17,9 @@ else{
 #Paths till CSV-filerna för handlingar och ärenden.
 $CSVAr=Import-Csv .\Documents\CSVarefixed.csv -Delimiter "¤" -Encoding utf8NoBOM
 $CSVHa=Import-Csv .\Documents\csvhanfixed.csv -Delimiter "¤" -Encoding utf8NoBOM
-$CSVdo=Import-Csv .\Documents\FNDiariumAssocdata.csv -Delimiter "¤" -Encoding utf8NoBOM
-$CSVnot=Import-CSV .\Documents\FNDiariumAnteckningar.csv -Delimiter "¤" -Encoding utf8NoBOM
-$CSVsam=Import-CSV .\Documents\FNDiariumSamband.csv -Delimiter "¤" -Encoding utf8NoBOM
+$CSVdo=Import-Csv .\Documents\FNNDiariumAssocdata.csv -Delimiter "¤" -Encoding utf8NoBOM
+$CSVnot=Import-CSV .\Documents\FNNDiariumAnteckningar.csv -Delimiter "¤" -Encoding utf8NoBOM
+$CSVsam=Import-CSV .\Documents\FNNDiariumSamband.csv -Delimiter "¤" -Encoding utf8NoBOM
 
 New-Item -Name "Arkivexport" -ItemType Directory -Path .\Documents
 $Diarium = Read-Host -Prompt "Vad ska diariebeteckningen vara på diariet?"
@@ -207,7 +207,7 @@ foreach($anteckning in $CSVnot){
 
     if($diarienummera -eq $anteckningdnr){
         ##Diarienummer som ligger med lite olika format i anteckningar. Från en uppdatering där alla verkar ha flyttat på sig under 90-talet
-        if($anteckningtext -match "Diarienummer : \d\d/FN\d\d\d\d"){
+        if($anteckningtext -match "Diarienummer : \d\d/FNN\d\d\d"){
             $ExtraIDAr += @"
     <ExtraID ExtraIDTyp="Från anteckningar">$anteckningtext</ExtraID>
 "@
@@ -721,7 +721,7 @@ $XMLSIPdokument=@"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns:ext="ExtensionMETS"
            OBJID="GUID:$OBJIDGUID"
-           LABEL="Diarieförda ärenden Fritidsnämnden, ur Ciceron Diabas"
+           LABEL="Diarieförda ärenden Fritidsnämnden Norrtäljedistriktet, ur Ciceron Diabas"
            TYPE="ERMS"
            PROFILE="http://xml.ra.se/e-arkiv/METS/CommonSpecificationSwedenPackageProfile.xml"
            ext:ACCESSRESTRICT="Secrecy and PuL"
@@ -797,5 +797,5 @@ $metsfiles
 
 $XMLSIPdokument | Out-File .\Documents\Arkivexport\Paket\Leveranspaket\sip.xml -Encoding utf8
 
-Compress-Archive -Path .\Documents\Arkivexport\Paket\Leveranspaket\* -DestinationPath ".\Documents\Script\FNDiabas$DateYYYYMMDD" -CompressionLevel Optimal -Force
+Compress-Archive -Path .\Documents\Arkivexport\Paket\Leveranspaket\* -DestinationPath ".\Documents\Script\FNNDiabas$DateYYYYMMDD" -CompressionLevel Optimal -Force
 Remove-Item -Path .\Documents\Arkivexport\ -Recurse

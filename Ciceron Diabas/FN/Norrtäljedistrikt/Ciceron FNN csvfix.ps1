@@ -4,12 +4,12 @@
 
 
 #Sökvägar till olika SQL-uttag
-$CSVusr= Import-Csv .\Documents\FNDiariumAnvandare.csv -Delimiter "¤" -Encoding utf8NoBOM
-$CSVare= Import-Csv .\Documents\FNDiariumArenden.csv -Delimiter "¤" -Encoding utf8NoBOM
-$CSVhan= Import-CSV .\Documents\FNDiariumHandlingar.csv -Delimiter "¤" -Encoding utf8NoBOM
-$CSVenh= Import-CSV .\Documents\FNDiariumEnhet.csv -Delimiter "¤" -encoding utf8NoBOM
-$CSVdia= Import-CSV .\Documents\FNDiariumDiarieplan.csv -Delimiter "¤" -encoding utf8NoBOM
-$CSVhty= Import-Csv .\Documents\FNDiariumHandlingstyper.csv -Delimiter "¤" -Encoding utf8NoBOM
+$CSVusr= Import-Csv .\Documents\FNNDiariumAnvandare.csv -Delimiter "¤" -Encoding utf8NoBOM
+$CSVare= Import-Csv .\Documents\FNNDiariumArenden.csv -Delimiter "¤" -Encoding utf8NoBOM
+$CSVhan= Import-CSV .\Documents\FNNDiariumHandlingar.csv -Delimiter "¤" -Encoding utf8NoBOM
+$CSVenh= Import-CSV .\Documents\FNNDiariumEnhet.csv -Delimiter "¤" -encoding utf8NoBOM
+$CSVdia= Import-CSV .\Documents\FNNDiariumDiarieplan.csv -Delimiter "¤" -encoding utf8NoBOM
+$CSVhty= Import-Csv .\Documents\FNNDiariumHandlingstyper.csv -Delimiter "¤" -Encoding utf8NoBOM
 
 Read-Host -Prompt "Kontrollera Linebreaks först, annars kommer den lägga på en massa ¤"
 
