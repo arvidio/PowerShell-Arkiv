@@ -4,12 +4,12 @@
 
 
 #Detta ändras för att peka på rätt filer
-$filer=get-childitem *.pdf
+$filer=get-childitem -Path .\Desktop\Betyg\*.pdf
 
 foreach($fil in $filer){
     #Detta behöver peka på pdftotext.exe C:\.\pdftotext.exe om den ligger direkt under C till exempel.
-    .\pdftotext.exe -enc UTF-8 $fil.FullName temptext.txt
-    $tempfil = Get-ChildItem temptext.txt
+    .\Documents\Script\PDF\.\pdftotext.exe -enc UTF-8 $fil.FullName .\Documents\temptext.txt
+    $tempfil = Get-ChildItem .\Documents\temptext.txt
     $temptext = Get-Content $tempfil
     $personnummer = $temptext | Out-String -stream | Select-String -Pattern '[\d]{6}-[\d]{4}'
     if($personnummer -match '[\d]{6}-[\d]{4}'){
