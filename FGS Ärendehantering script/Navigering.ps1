@@ -1,5 +1,5 @@
 #Hitta något som arkivexport.xml
-[XML]$XML = get-content C:\Users\97arer14\Documents\Arkivexport\TN2022-06-30TT1013Arkivexport.xml
+[XML]$XML = get-content C:\Users\97arer14\Documents\Arkivexport\TN2022-09-07TT1059Arkivexport.xml
 
 $arenden = $XML.Leveransobjekt.ArkivobjektListaArenden.ArkivobjektArende
 
@@ -14,6 +14,29 @@ foreach($arende in $arenden){
     }
     
 }
+#Hitta ärenden med Klass 513
+foreach($arende in $arenden){
+    $dnr = $arende.ArkivobjektID
+    $park = "513 Parkeringstillstånd"
+    $klass = $arende.Klass
+
+    if($klass -eq $park){
+        $dnr
+    }
+    
+}
+#Hitta ärenden där Upprattad Expedierad Atkmost och Arendemening. saknas
+foreach($arende in $arenden){
+    $dnr = $arende.ArkivobjektID
+    $Uppr = $arende.Upprattad
+    $Expe = $arende.Expedierad
+    $Atko = $arende.Atkomst
+    $Aren = $arende.Arendemening
+    if(($null -eq $Uppr)-and($null -eq $Expe)-and($null -eq $Atko)-and($null -eq $Aren)){
+        $dnr
+    }
+}
+
 
 #Hitta ärenden där SistaAnvandandetidpunkt är tomt (Vanligtvis CSV-problem)
 foreach($arende in $arenden){
