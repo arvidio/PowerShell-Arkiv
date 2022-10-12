@@ -732,7 +732,7 @@ $XMLSIPdokument=@"
            ext:ACCESSRESTRICT="Secrecy and PuL"
            ext:AGREEMENTFORM="AGREEMENT"
            ext:APPRAISAL="No"
-           ext:ARCHIVALNAME="KOMMUNSTYRELSEN"
+           ext:ARCHIVALNAME="Kultur- och fritidsnämnden"
            ext:PACKAGENUMBER="1"
            ext:SYSTEMTYPE="Ärendehanteringssystem">
   <mets:metsHdr CREATEDATE="$DateTimeExtended"
@@ -802,5 +802,5 @@ $metsfiles
 
 $XMLSIPdokument | Out-File .\Documents\Arkivexport\Paket\Leveranspaket\sip.xml -Encoding utf8
 
-Compress-Archive -Path .\Documents\Arkivexport\Paket\Leveranspaket\* -DestinationPath ".\Documents\Script\KSDiabas$DateYYYYMMDD" -CompressionLevel Optimal -Force
+Compress-Archive -Path .\Documents\Arkivexport\Paket\Leveranspaket\* -DestinationPath ".\Documents\Script\KFNDiabas$DateYYYYMMDD" -CompressionLevel Optimal -Force
 Remove-Item -Path .\Documents\Arkivexport\ -Recurse

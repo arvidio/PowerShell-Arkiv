@@ -83,7 +83,7 @@ $XMLSIPdokument=@"
                 ext:OAISSTATUS="SIP">
     <mets:agent ROLE="CREATOR"
                 TYPE="INDIVIDUAL">
-      <mets:name>Löneenheten</mets:name>
+      <mets:name>Arvid Eriksson</mets:name>
     </mets:agent>
     <mets:agent ROLE="CREATOR"
                 TYPE="ORGANIZATION">
