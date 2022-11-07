@@ -1,5 +1,5 @@
 #Hitta något som arkivexport.xml
-[XML]$XML = get-content C:\Users\97arer14\Documents\Arkivexport\TN2022-09-07TT1059Arkivexport.xml
+[XML]$XML = get-content C:\Users\97arer14\Documents\Prettyprint.xml
 
 $arenden = $XML.Leveransobjekt.ArkivobjektListaArenden.ArkivobjektArende
 
