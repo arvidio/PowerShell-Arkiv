@@ -1,0 +1,15 @@
+<ArkivobjektListaHandlingar>
+    <ArkivobjektHandling>
+        <ArkivobjektID>$ObjektID</ArkivobjektID>
+        <Beskrivning>$Beskr</Beskrivning>
+        <Bilaga Namn="$beskr" Lank="$lank" Storlek="$storlek" Mimetyp="$mimetyp"/>
+        <EgnaElement>
+            <EgetElement Namn="Beslutsinstans" DataTyp="String">
+                <Varde>$Beslutsinstans3</Varde>
+            </EgetElement>
+            <EgetElement Namn="Sammanträdesdatum" DataTyp="String">
+                <Varde>$SammantradesDatum2</Varde>
+            </EgetElement>
+        </EgnaElement>
+    </ArkivobjektHandling>
+</ArkivobjektListaHandlingar>

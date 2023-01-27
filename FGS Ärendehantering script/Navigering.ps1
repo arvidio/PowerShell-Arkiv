@@ -1,7 +1,10 @@
 #Hitta något som arkivexport.xml
-[XML]$XML = get-content C:\Users\97arer14\Documents\Prettyprint.xml
+[XML]$XML = get-content ''
+[XML]$XML = get-content ''
+[XML]$XML = get-content ''
 
 $arenden = $XML.Leveransobjekt.ArkivobjektListaArenden.ArkivobjektArende
+$handlingar = $XML.Leveransobjekt.ArkivobjektListaArenden.ArkivobjektArende.ArkivobjektListaHandlingar.ArkivobjektHandling
 
 #Hitta ärenden där Motpart saknar Namn-tagg.
 foreach($arende in $arenden){

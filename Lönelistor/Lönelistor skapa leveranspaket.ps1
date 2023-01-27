@@ -4,9 +4,9 @@
 #De bör även ligga i C:\users\97arer14\documents\script\leveransfiler\, samt vara de enda filerna i mappen
 
 #Nya temporära mappar för baspaketstruktur
-New-Item -Path C:\Users\97arer14\Documents\Script\ -Name leveranspaket -ItemType Directory
-New-Item -Path C:\Users\97arer14\Documents\Script\leveranspaket\ -Name "content" -ItemType Directory
-New-Item -Path C:\Users\97arer14\Documents\Script\leveranspaket\content -Name "1" -ItemType Directory
+New-Item -Path .\Documents\Script\ -Name leveranspaket -ItemType Directory
+New-Item -Path .\Documents\Script\leveranspaket\ -Name "content" -ItemType Directory
+New-Item -Path .\Documents\Script\leveranspaket\content -Name "1" -ItemType Directory
 
 #Variabler
 $OBJIDGUIDObject=New-Guid
@@ -14,7 +14,7 @@ $OBJIDGUID=$OBJIDGUIDObject.Guid
 $DateTimeExtended = Get-Date -Format yyyy-MM-ddTHH:mm:ss
 $DateYYYYMMDD = Get-Date -Format yyyy-MM-dd
 
-$actualfiles=get-childitem C:\users\97arer14\Documents\Script\leveransfiler\
+$actualfiles=get-childitem .\Documents\Script\leveransfiler\
 foreach($afile in $actualfiles){
 #Variabler relaterat till filer
 $filename=$afile.Name
@@ -50,12 +50,12 @@ $metsfilexml=@"
     <mets:FLocat LOCTYPE="URL" xlink:type="simple" xlink:href="file:///content/1/$filename"/>
 </mets:file>
 "@
-Copy-Item $afile.FullName -Destination C:\Users\97arer14\Documents\Script\leveranspaket\content\1
-$metsfilexml | Out-File C:\Users\97arer14\Documents\Script\metsfiles.xml -Encoding utf8NoBOM -Append
+Copy-Item $afile.FullName -Destination .\Documents\Script\leveranspaket\content\1
+$metsfilexml | Out-File .\Documents\Script\metsfiles.xml -Encoding utf8NoBOM -Append
 }
 
 
-$metsfilesxmloutput=Get-ChildItem -Path C:\Users\97arer14\Documents\Script\metsfiles.xml
+$metsfilesxmloutput=Get-ChildItem -Path .\Documents\Script\metsfiles.xml
 $metsfiles = Get-Content $metsfilesxmloutput -Encoding utf8NoBOM -Raw
 remove-item $metsfilesxmloutput
 
@@ -143,8 +143,8 @@ $metsfiles
 </mets:mets>
 "@
 
-$XMLSIPdokument | Out-File C:\users\97arer14\Documents\Script\leveranspaket\sip.xml -Encoding utf8
+$XMLSIPdokument | Out-File .\Documents\Script\leveranspaket\sip.xml -Encoding utf8
 
 $Datekombinerat = $DateStora + "_" + $DateLilla
-Compress-Archive -Path C:\Users\97arer14\Documents\Script\leveranspaket\* -DestinationPath "C:\users\97arer14\Documents\Script\NK_Lonelistor_$Datekombinerat" -CompressionLevel Optimal
-Remove-Item -Path C:\Users\97arer14\Documents\Script\leveranspaket\ -Recurse
+Compress-Archive -Path .\Documents\Script\leveranspaket\* -DestinationPath ".\Documents\Script\NK_Lonelistor_$Datekombinerat" -CompressionLevel Optimal
+Remove-Item -Path .\Documents\Script\leveranspaket\ -Recurse
