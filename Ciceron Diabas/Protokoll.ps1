@@ -1,7 +1,7 @@
 #Kört detta innan, bara för att få bort timmar och sekunder från mod_datum. Irrelevant i sammanhanget och skapar valideringsproblem (vill inte skriva att jag är lat).
-<#
 
-$CSV = Import-CSV .\Documents\BSNProtokoll.csv -Delimiter '♥' -Encoding utf8NoBOM
+
+$CSV = Import-CSV .\Documents\VNProtokoll.csv -Delimiter '♥' -Encoding utf8NoBOM
 foreach($row in $CSV){
     if('NULL' -ne $row.mod_dat){
         $row.mod_dat = $row.mod_dat.SubString(0,10)
@@ -9,11 +9,14 @@ foreach($row in $CSV){
 }
 $CSV | Export-Csv -Path .\Documents\Protokollfixad.csv -encoding utf8NoBOM -Delimiter "♥" -UseQuotes Never
 
-#>
+
 
 $CSV= Import-CSV .\Documents\Protokollfixad.CSV -Delimiter '♥' -Encoding utf8NoBOM
 
-
+$test= Test-Path .\Documents\Arkivexport\*
+if($test -eq $true){
+    Read-Host "Töm Arkivexportmappen först"
+}
 #
 $HandlingsXML = $null #Bara för att fixa återkörning
 $DagensDatum = Get-Date -Format yyyy-MM-ddTTHHmm
