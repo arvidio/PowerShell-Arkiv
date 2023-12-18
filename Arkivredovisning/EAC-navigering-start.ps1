@@ -8,7 +8,11 @@ $arkivbildareEAC = $EAC.eacgrp.condescgrp.eac
 $arkivbildareEAD = $EAD.eadgrp.archdescgrp.ead
 
 
+#Äldsta arkivbildaren?
 
+$arkivbildareEAC.eacheader.
+
+##
 
 $sok = Read-Host "Vilket arkiv vill du hitta?"
 foreach ($arkiv in $arkivbildareEAC){
