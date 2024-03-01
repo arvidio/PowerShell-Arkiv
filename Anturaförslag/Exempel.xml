@@ -1,0 +1,11 @@
+<erms>
+    <aggregations>
+        <aggregation>
+            <objectId>UUID</objectId>
+            <extraId extraIdType="Diarienummer">KS 2024-1234</extraId><!-- Ska detta vara samma som i diariet så blir det nog lite meckigt-->
+            <informationClass>Public</informationClass>
+            <securityClass>0</securityClass>
+            <identification></identification>
+            
+    </aggregations>
+</erms>

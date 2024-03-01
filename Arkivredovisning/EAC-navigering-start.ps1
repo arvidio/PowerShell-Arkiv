@@ -10,8 +10,15 @@ $arkivbildareEAD = $EAD.eadgrp.archdescgrp.ead
 
 #Äldsta arkivbildaren?
 
-$arkivbildareEAC.eacheader.
-
+foreach($arkiv in $arkivbildareEAC){
+$arkivbildareNamn = $arkiv.condesc.identity.corphead.part
+$huvudkategori = $arkiv.condesc.funactrels.funactrel.huvudkategori
+$datum= $arkiv.archdesc.resourcerels.resourcerel.archunit.unitdate
+if($huvudkategori -like "*Förening*"){
+    $arkivbildareNamn
+    $datum
+}
+}
 ##
 
 $sok = Read-Host "Vilket arkiv vill du hitta?"

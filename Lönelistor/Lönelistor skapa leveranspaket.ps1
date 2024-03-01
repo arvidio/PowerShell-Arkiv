@@ -2,7 +2,7 @@
 #Script för att skapa ett paket med två lönelistor, en lilla och en stora. YYYY-MM-DD_lonelistor_månad_lilla/stora.docx
 #Innan bör de konverteras till docx och namnsättas enligt ovan.
 #De bör även ligga i C:\users\97arer14\documents\script\leveransfiler\, samt vara de enda filerna i mappen
-
+Set-Location "C:\Users\97arer14"
 #Nya temporära mappar för baspaketstruktur
 New-Item -Path .\Documents\Script\ -Name leveranspaket -ItemType Directory
 New-Item -Path .\Documents\Script\leveranspaket\ -Name "content" -ItemType Directory

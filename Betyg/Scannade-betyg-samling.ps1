@@ -66,28 +66,10 @@ $Fileobject | ForEach-Object {
                           #Hämtar Efternamn
                           $Column1 = $CurrentFileName.split("_")[3]
                           #Hämtar Förnamn och gömmer .pdf
-                          $Column2 = $CurrentFileName.split("_"".")[4]
+                          $nameandext = $CurrentFileName.split("_")[4]
+                          $Column2 = $nameandext.split(".")[0]
                           #Hämtar mapp från filens Directory Name. Siffran i [] ska peka på det fält där klassnamnet står, räknat från 0.
                           $Column3 = $CurrentFolder.split("\")[6]
 
                           $Column0+";"+$Column1+";"+$Column2+";"+$Column3+";"+$Column4+";"+$Column5+";"+$CurrentFileName
                         } | Out-File -FilePath "betygscsv$(get-date -f HHmm).csv" -Encoding utf8
-
-
-#Gammal version som inte inkluderar skolnamn/avgångsår.            
-#$Fileobject = Get-ChildItem -Recurse *.pdf
-
-#$Fileobject | foreach { 
-#                          $CurrentFolder = $_.DirectoryName
-#                          $CurrentFileName = $_.Name
-#                          #Hämtar Personnummer
-#                          $Column0 = $CurrentFileName.split("_")[0]
-#                          #Hämtar Efternamn
-#                          $Column1 = $CurrentFileName.split("_")[1]
-#                          #Hämtar Förnamn och gömmer .pdf
-#                          $Column2 = $CurrentFileName.split("_"".")[2]
-#                          #Hämtar mapp från filens Directory Name. Siffran i [] ska peka på det fält där klassnamnet står, räknat från 0.
-#                          $Column3 = $CurrentFolder.split("\")[6]
-#
-#                          $Column0+";"+$Column1+";"+$Column2+";"+$Column3+";"+$CurrentFileName
-#                        } | Out-File -FilePath "betygscsv$(get-date -f HHmm).csv" -Encoding utf8
